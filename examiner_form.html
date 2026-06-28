@@ -251,9 +251,17 @@ let hasS2 = false;
 async function loadStudentData() {
   const statusEl = document.getElementById('dataLoadStatus');
   try {
-    const res = await fetch(HARDCODED_ROSTER_URL);
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    STUDENT_DATA = await res.json();
+   async function loadStudentData() {
+  const statusEl = document.getElementById('dataLoadStatus');
+  try {
+    STUDENT_DATA = await new Promise((resolve, reject) => {
+      const script = document.createElement('script');
+      const cbName = 'rosterCB_' + Date.now();
+      window[cbName] = (data) => { resolve(data); delete window[cbName]; script.remove(); };
+      script.onerror = () => reject(new Error('Script load failed'));
+      script.src = HARDCODED_ROSTER_URL + '?callback=' + cbName;
+      document.head.appendChild(script);
+    });
     statusEl.className = 'alert alert-success show';
     statusEl.textContent = '✓ Student data loaded — ' + Object.keys(STUDENT_DATA).length + ' groups.';
     setTimeout(() => statusEl.classList.remove('show'), 3000);
