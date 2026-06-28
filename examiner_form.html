@@ -255,13 +255,14 @@ async function loadStudentData() {
   const statusEl = document.getElementById('dataLoadStatus');
   try {
     STUDENT_DATA = await new Promise((resolve, reject) => {
-      const script = document.createElement('script');
-      const cbName = 'rosterCB_' + Date.now();
-      window[cbName] = (data) => { resolve(data); delete window[cbName]; script.remove(); };
-      script.onerror = () => reject(new Error('Script load failed'));
-      script.src = HARDCODED_ROSTER_URL + '?callback=' + cbName;
-      document.head.appendChild(script);
-    });
+  const script = document.createElement('script');
+  const cbName = 'rosterCB_' + Date.now();
+  const timer = setTimeout(() => reject(new Error('Timeout — check roster script URL and redeploy')), 8000);
+  window[cbName] = (data) => { clearTimeout(timer); resolve(data); delete window[cbName]; script.remove(); };
+  script.onerror = () => { clearTimeout(timer); reject(new Error('Script load failed')); };
+  script.src = HARDCODED_ROSTER_URL + '?callback=' + cbName;
+  document.head.appendChild(script);
+});
     statusEl.className = 'alert alert-success show';
     statusEl.textContent = '✓ Student data loaded — ' + Object.keys(STUDENT_DATA).length + ' groups.';
     setTimeout(() => statusEl.classList.remove('show'), 3000);
