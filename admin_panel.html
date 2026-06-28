@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Panel — ExamPortal</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#080a0e;--surface:#0f1117;--surface2:#161a24;--border:#1e2333;--accent:#c9a84c;--accent2:#e8c97a;--text:#e8eaf0;--muted:#5a6275;--success:#34d399;--error:#f87171;--warn:#fbbf24}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+#loginScreen{min-height:100vh;display:flex;align-items:center;justify-content:center;background-image:radial-gradient(ellipse at 30% 30%,rgba(201,168,76,0.07) 0%,transparent 60%)}
+.login-box{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:48px 44px;width:100%;max-width:400px;text-align:center}
+.login-icon{width:56px;height:56px;background:linear-gradient(135deg,var(--accent),#7a5a20);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;margin:0 auto 20px}
+.login-title{font-family:'Playfair Display',serif;font-size:1.6rem;margin-bottom:6px}
+.login-sub{color:var(--muted);font-size:0.85rem;margin-bottom:32px}
+.login-field{margin-bottom:16px;text-align:left}
+label{display:block;font-size:0.75rem;font-weight:600;letter-spacing:0.07em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+input,textarea,select{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:0.95rem;padding:11px 15px;outline:none;transition:border-color 0.2s,box-shadow 0.2s}
+input:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(201,168,76,0.1)}
+.btn{padding:11px 22px;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:0.9rem;font-weight:600;cursor:pointer;border:none;transition:all 0.2s}
+.btn-primary{background:var(--accent);color:#08090e;width:100%;padding:13px;font-size:0.95rem}.btn-primary:hover{background:var(--accent2)}
+.btn-danger{background:rgba(248,113,113,0.15);color:var(--error);border:1px solid rgba(248,113,113,0.3)}.btn-danger:hover{background:rgba(248,113,113,0.25)}
+.btn-ghost{background:transparent;border:1px solid var(--border);color:var(--muted)}.btn-ghost:hover{border-color:var(--accent);color:var(--accent)}
+.btn-sm{padding:7px 14px;font-size:0.82rem}
+.login-error{color:var(--error);font-size:0.82rem;margin-top:10px;display:none}
+#adminPanel{display:none}
+header{background:var(--surface);border-bottom:1px solid var(--border);padding:16px 32px;display:flex;align-items:center;justify-content:space-between}
+.logo{font-family:'Playfair Display',serif;font-size:1.2rem;color:var(--accent)}.logo span{color:var(--text)}.logo small{font-size:0.65rem;font-family:'DM Sans',sans-serif;color:var(--muted);display:block;letter-spacing:0.1em;text-transform:uppercase;margin-top:-2px}
+.header-right{display:flex;align-items:center;gap:12px}
+.admin-tag{font-size:0.72rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--accent);background:rgba(201,168,76,0.1);border:1px solid rgba(201,168,76,0.25);padding:5px 12px;border-radius:20px}
+.layout{display:grid;grid-template-columns:220px 1fr;min-height:calc(100vh - 65px)}
+.sidebar{background:var(--surface);border-right:1px solid var(--border);padding:24px 0}
+.nav-section{padding:0 16px;margin-bottom:24px}
+.nav-label{font-size:0.65rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);padding:0 8px;margin-bottom:8px;display:block}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;cursor:pointer;font-size:0.88rem;font-weight:500;color:var(--muted);transition:all 0.15s;margin-bottom:2px}
+.nav-item:hover{background:var(--surface2);color:var(--text)}.nav-item.active{background:rgba(201,168,76,0.1);color:var(--accent)}
+.nav-icon{font-size:1rem;width:20px;text-align:center}
+.content{padding:36px 40px;overflow-y:auto}
+.tab-pane{display:none}.tab-pane.active{display:block}
+.section-title{font-family:'Playfair Display',serif;font-size:1.6rem;margin-bottom:4px}
+.section-sub{color:var(--muted);font-size:0.85rem;margin-bottom:32px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:20px}
+.card-header{padding:16px 20px;border-bottom:1px solid var(--border);background:var(--surface2);display:flex;align-items:center;justify-content:space-between}
+.card-title{font-size:0.75rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--accent);display:flex;align-items:center;gap:8px}
+.card-body{padding:20px}
+.field-row{margin-bottom:18px}.field-row:last-child{margin-bottom:0}
+.field-hint{font-size:0.78rem;color:var(--muted);margin-top:6px;line-height:1.5}
+.status-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px}
+.dot-green{background:var(--success);box-shadow:0 0 6px var(--success)}.dot-red{background:var(--error)}
+.alert{padding:11px 15px;border-radius:8px;font-size:0.84rem;margin-bottom:14px;display:none}
+.alert.show{display:flex;align-items:center;gap:8px}
+.alert-success{background:rgba(52,211,153,0.1);border:1px solid rgba(52,211,153,0.3);color:var(--success)}
+.alert-error{background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.3);color:var(--error)}
+.alert-warn{background:rgba(251,191,36,0.1);border:1px solid rgba(251,191,36,0.3);color:var(--warn)}
+.divider{border:none;border-top:1px solid var(--border);margin:20px 0}
+.password-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:0.84rem}
+thead th{text-align:left;font-size:0.7rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);padding:10px 14px;border-bottom:1px solid var(--border);background:var(--surface2)}
+tbody tr{border-bottom:1px solid rgba(255,255,255,0.04);transition:background 0.1s}
+tbody tr:hover{background:var(--surface2)}
+tbody td{padding:10px 14px;color:var(--text)}
+tbody td.id-col{font-family:'Courier New',monospace;font-size:0.8rem;color:var(--muted)}
+.tag{display:inline-block;font-size:0.7rem;font-weight:600;padding:2px 8px;border-radius:4px;letter-spacing:0.05em}
+.tag-day{background:rgba(201,168,76,0.1);color:var(--accent)}.tag-room{background:rgba(52,211,153,0.1);color:var(--success)}
+.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:24px}
+.stat-card{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:18px}
+.stat-val{font-size:2rem;font-weight:700;color:var(--accent);font-family:'Playfair Display',serif}
+.stat-label{font-size:0.75rem;color:var(--muted);margin-top:4px;letter-spacing:0.05em}
+.spinner-inline{display:inline-block;width:14px;height:14px;border:2px solid rgba(201,168,76,0.3);border-top-color:var(--accent);border-radius:50%;animation:spin 0.7s linear infinite;vertical-align:middle;margin-right:6px}
+@keyframes spin{to{transform:rotate(360deg)}}
+pre{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:16px;font-size:0.78rem;overflow-x:auto;color:#a8c4f0;line-height:1.6}
+@media(max-width:768px){.layout{grid-template-columns:1fr}.sidebar{display:none}.content{padding:24px 16px}.stats-grid{grid-template-columns:1fr 1fr}.password-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div id="loginScreen">
+  <div class="login-box">
+    <div class="login-icon">🔐</div>
+    <h1 class="login-title">Admin Panel</h1>
+    <p class="login-sub">ExamPortal — Restricted Access</p>
+    <div class="login-field">
+      <label for="loginPass">Admin Password</label>
+      <input type="password" id="loginPass" placeholder="Enter password" autocomplete="current-password">
+    </div>
+    <button class="btn btn-primary" onclick="doLogin()">Sign In</button>
+    <div class="login-error" id="loginError">Incorrect password. Try again.</div>
+    <p style="margin-top:20px;font-size:0.75rem;color:var(--muted)">Contact your administrator if you need access.</p>
+  </div>
+</div>
+
+<div id="adminPanel">
+  <header>
+    <div class="logo">Exam<span>Portal</span><small>Admin Console</small></div>
+    <div class="header-right">
+      <span class="admin-tag">Admin</span>
+      <button class="btn btn-ghost btn-sm" onclick="logout()">Sign Out</button>
+    </div>
+  </header>
+  <div class="layout">
+    <nav class="sidebar">
+      <div class="nav-section">
+        <span class="nav-label">Management</span>
+        <div class="nav-item active" onclick="showTab('dashboard',this)"><span class="nav-icon">📊</span> Dashboard</div>
+        <div class="nav-item" onclick="showTab('sheet',this)"><span class="nav-icon">🔗</span> Google Sheet</div>
+        <div class="nav-item" onclick="showTab('students',this)"><span class="nav-icon">👥</span> Student Data</div>
+      </div>
+      <div class="nav-section">
+        <span class="nav-label">Security</span>
+        <div class="nav-item" onclick="showTab('password',this)"><span class="nav-icon">🔑</span> Change Password</div>
+      </div>
+    </nav>
+    <div class="content">
+
+      <!-- DASHBOARD -->
+      <div class="tab-pane active" id="tab-dashboard">
+        <h1 class="section-title">Dashboard</h1>
+        <p class="section-sub">Overview of your exam portal configuration.</p>
+        <div class="stats-grid">
+          <div class="stat-card"><div class="stat-val" id="statGroups">—</div><div class="stat-label">Total Groups</div></div>
+          <div class="stat-card"><div class="stat-val" id="statStudents">—</div><div class="stat-label">Total Students</div></div>
+          <div class="stat-card"><div class="stat-val" id="statDays">—</div><div class="stat-label">Exam Days</div></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><span class="card-title">⚡ System Status</span></div>
+          <div class="card-body">
+            <div style="display:flex;flex-direction:column;gap:12px">
+              <div style="display:flex;align-items:center;justify-content:space-between"><span style="font-size:0.88rem">Google Sheet URL</span><span id="sheetStatus" style="font-size:0.82rem"></span></div>
+              <div style="display:flex;align-items:center;justify-content:space-between"><span style="font-size:0.88rem">Student Data</span><span id="dataStatus" style="font-size:0.82rem"></span></div>
+              <div style="display:flex;align-items:center;justify-content:space-between"><span style="font-size:0.88rem">Admin Password</span><span id="passStatus" style="font-size:0.82rem"></span></div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><span class="card-title">📋 Quick Links</span></div>
+          <div class="card-body">
+            <p style="font-size:0.88rem;color:var(--muted);margin-bottom:14px">Share the examiner form with your team. Keep the admin panel private.</p>
+            <div style="display:flex;gap:10px;flex-wrap:wrap">
+              <button class="btn btn-ghost btn-sm" onclick="window.open('examiner_form.html','_blank')">🔗 Open Examiner Form</button>
+              <button class="btn btn-ghost btn-sm" onclick="openSheet()">📊 Open Google Sheet</button>
+              <button class="btn btn-ghost btn-sm" onclick="refreshData()">🔄 Refresh Student Data</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- GOOGLE SHEET -->
+      <div class="tab-pane" id="tab-sheet">
+        <h1 class="section-title">Google Sheet</h1>
+        <p class="section-sub">Configure where grade submissions are saved.</p>
+        <div class="card">
+          <div class="card-header"><span class="card-title">🔗 Grade Submission Script URL</span></div>
+          <div class="card-body">
+            <div id="sheetAlert" class="alert"></div>
+            <div class="field-row">
+              <label>Google Apps Script URL (grade submission)</label>
+              <input type="url" id="sheetUrlInput" placeholder="https://script.google.com/macros/s/…/exec">
+              <p class="field-hint">This receives grade submissions from the examiner form.</p>
+            </div>
+            <div style="display:flex;gap:10px">
+              <button class="btn btn-primary" style="width:auto;padding:10px 24px" onclick="saveSheetUrl()">Save URL</button>
+              <button class="btn btn-danger btn-sm" onclick="clearSheetUrl()">Clear</button>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><span class="card-title">☁️ GitHub Sync — Permanent URL (All Devices)</span></div>
+          <div class="card-body">
+            <p class="field-hint" style="margin-bottom:14px">Set once. The Sheet URL is stored in your GitHub repo as <code>config.json</code> and loaded automatically on every device.</p>
+            <div class="field-row">
+              <label>GitHub Repo (username/reponame)</label>
+              <input type="text" id="ghRepoInput" placeholder="e.g. your-username/grade-submit">
+            </div>
+            <div class="field-row">
+              <label>GitHub Personal Access Token</label>
+              <input type="password" id="ghTokenInput" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx">
+              <p class="field-hint">Needs <strong>Contents: Read &amp; Write</strong>. <a href="https://github.com/settings/tokens/new?scopes=repo&description=ExamPortal" target="_blank" style="color:var(--accent)">Generate token →</a></p>
+            </div>
+            <button class="btn btn-primary" style="width:auto;padding:10px 24px" onclick="saveGitHubSettings()">Save &amp; Sync Now</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><span class="card-title">📖 Apps Script Setup Guide</span></div>
+          <div class="card-body" style="font-size:0.88rem;line-height:1.8;color:var(--muted)">
+            <p style="color:var(--text);font-weight:600;margin-bottom:12px">Steps to connect Google Sheets:</p>
+            <ol style="padding-left:20px;display:flex;flex-direction:column;gap:10px">
+              <li>Go to <strong style="color:var(--accent)">sheets.google.com</strong> → create a new spreadsheet</li>
+              <li>Row 1 columns: <code style="background:var(--surface2);padding:2px 6px;border-radius:4px;color:var(--accent2)">Timestamp | Group | Day | Room | S1 Name | S1 ID | E1-S1 Report | E1-S1 Pres | E2-S1 Report | E2-S1 Pres | E3-S1 Report | E3-S1 Pres | S2 Name | S2 ID | E1-S2 Report | E1-S2 Pres | E2-S2 Report | E2-S2 Pres | E3-S2 Report | E3-S2 Pres | S1 Total | S2 Total | Group Avg</code></li>
+              <li>Extensions → Apps Script → paste code below → save</li>
+              <li>Deploy → New Deployment → Web App → Execute as Me, Anyone can access → copy URL above</li>
+            </ol>
+            <hr class="divider">
+            <p style="color:var(--text);font-weight:600;margin-bottom:10px">Apps Script Code:</p>
+            <div style="position:relative">
+              <pre id="scriptCode">function doPost(e) {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  var d = e.parameter;
+  sheet.appendRow([d.timestamp,d.groupNumber,d.day,d.room,d.s1Name,d.s1Id,
+    d.e1s1Report,d.e1s1Presentation,d.e2s1Report,d.e2s1Presentation,
+    d.e3s1Report,d.e3s1Presentation,d.s2Name,d.s2Id,
+    d.e1s2Report,d.e1s2Presentation,d.e2s2Report,d.e2s2Presentation,
+    d.e3s2Report,d.e3s2Presentation,d.s1Total,d.s2Total,d.groupAvg]);
+  return ContentService.createTextOutput(JSON.stringify({status:'success'}))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+function doGet(e) {
+  return ContentService.createTextOutput(JSON.stringify({status:'ok'}))
+    .setMimeType(ContentService.MimeType.JSON);
+}</pre>
+              <button class="btn btn-ghost btn-sm" style="position:absolute;top:10px;right:10px" onclick="copyScript()">Copy</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STUDENTS -->
+      <div class="tab-pane" id="tab-students">
+        <h1 class="section-title">Student Data</h1>
+        <p class="section-sub">Live data loaded from your Google Apps Script roster URL. Refreshes automatically on login.</p>
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">👥 All Groups</span>
+            <span style="font-size:0.78rem;color:var(--muted)" id="groupCount"></span>
+          </div>
+          <div id="studentLoadStatus" class="alert" style="margin:16px 20px 0"></div>
+          <div class="card-body" style="padding:0">
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Group</th><th>Student 1</th><th>S1 ID</th><th>Student 2</th><th>S2 ID</th><th>Day</th><th>Room</th></tr></thead>
+                <tbody id="groupTableBody"><tr><td colspan="7" style="text-align:center;padding:24px;color:var(--muted)"><span class="spinner-inline"></span>Loading student data…</td></tr></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PASSWORD -->
+      <div class="tab-pane" id="tab-password">
+        <h1 class="section-title">Change Password</h1>
+        <p class="section-sub">Update the admin panel password. Stored locally in your browser.</p>
+        <div class="card">
+          <div class="card-header"><span class="card-title">🔑 Password Settings</span></div>
+          <div class="card-body">
+            <div id="passAlert" class="alert"></div>
+            <div class="password-grid">
+              <div class="field-row"><label>Current Password</label><input type="password" id="currentPass" placeholder="Current password"></div>
+              <div></div>
+              <div class="field-row"><label>New Password</label><input type="password" id="newPass" placeholder="New password (min. 6 chars)"></div>
+              <div class="field-row"><label>Confirm New Password</label><input type="password" id="confirmPass" placeholder="Repeat new password"></div>
+            </div>
+            <button class="btn btn-primary" style="width:auto;padding:10px 28px" onclick="changePassword()">Update Password</button>
+          </div>
+        </div>
+        <div class="card" style="border-color:rgba(248,113,113,0.2)">
+          <div class="card-header" style="background:rgba(248,113,113,0.05)"><span class="card-title" style="color:var(--error)">🗑 Clear All Settings</span></div>
+          <div class="card-body">
+            <p style="font-size:0.88rem;color:var(--muted);margin-bottom:14px">Clears password and sheet URL from this browser. Reverts to default password <code style="color:var(--accent)">Msa111</code>.</p>
+            <button class="btn btn-danger btn-sm" onclick="clearAllSettings()">Clear All Settings</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+// ── CHANGE THIS URL TO YOUR GOOGLE APPS SCRIPT ROSTER URL ──
+const HARDCODED_ROSTER_URL = 'PASTE_YOUR_ROSTER_SCRIPT_URL_HERE';
+// ── CHANGE THIS URL TO YOUR GRADE SUBMISSION SCRIPT URL ──
+const HARDCODED_SHEET_URL = 'https://script.google.com/macros/s/AKfycbw6xnAyHr1UXfUB6JJkqL2dlNnK8S-Uel9CgiZVB_ZonFkeiRjp9b0K9vF_Zrg8P2eCNg/exec';
+
+const PASS_KEY = 'examportal_admin_pass';
+const SHEET_KEY = 'examportal_sheet_url';
+const DEFAULT_PASS = 'Msa111';
+const GH_REPO_KEY = 'examportal_gh_repo';
+const GH_TOKEN_KEY = 'examportal_gh_token';
+
+let STUDENT_DATA = {};
+
+function getPassword() { return localStorage.getItem(PASS_KEY) || DEFAULT_PASS; }
+function getSheetUrl() { return localStorage.getItem(SHEET_KEY) || HARDCODED_SHEET_URL; }
+
+function doLogin() {
+  if (document.getElementById('loginPass').value === getPassword()) {
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('adminPanel').style.display = 'block';
+    initAdmin();
+  } else {
+    document.getElementById('loginError').style.display = 'block';
+  }
+}
+function logout() {
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('adminPanel').style.display = 'none';
+  document.getElementById('loginPass').value = '';
+  document.getElementById('loginError').style.display = 'none';
+}
+document.getElementById('loginPass').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+
+function showTab(id, el) {
+  document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  el.classList.add('active');
+}
+
+function initAdmin() {
+  document.getElementById('sheetUrlInput').value = getSheetUrl() || '';
+  document.getElementById('ghRepoInput').value = localStorage.getItem(GH_REPO_KEY) || '';
+  loadStudentData();
+}
+
+async function loadStudentData() {
+  const statusEl = document.getElementById('studentLoadStatus');
+  statusEl.className = 'alert alert-warn show';
+  statusEl.textContent = '⏳ Loading student data from roster script…';
+  document.getElementById('groupTableBody').innerHTML = '<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--muted)"><span class="spinner-inline"></span>Loading…</td></tr>';
+  try {
+    const res = await fetch(HARDCODED_ROSTER_URL);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    STUDENT_DATA = await res.json();
+    statusEl.className = 'alert alert-success show';
+    statusEl.textContent = '✓ Loaded ' + Object.keys(STUDENT_DATA).length + ' groups from roster.';
+    setTimeout(() => statusEl.classList.remove('show'), 3000);
+    updateDashboard();
+    renderGroupTable();
+  } catch(e) {
+    statusEl.className = 'alert alert-error show';
+    statusEl.textContent = '⚠ Could not load roster: ' + e.message;
+    updateDashboard();
+  }
+}
+
+function refreshData() { loadStudentData(); }
+
+function updateDashboard() {
+  const keys = Object.keys(STUDENT_DATA);
+  const students = keys.reduce((acc,k) => acc + 1 + (STUDENT_DATA[k].s2_name ? 1 : 0), 0);
+  const days = new Set(keys.map(k => STUDENT_DATA[k].day)).size;
+  document.getElementById('statGroups').textContent = keys.length || '—';
+  document.getElementById('statStudents').textContent = students || '—';
+  document.getElementById('statDays').textContent = days || '—';
+  document.getElementById('sheetStatus').innerHTML = getSheetUrl()
+    ? '<span class="status-dot dot-green"></span><span style="color:var(--success)">Configured</span>'
+    : '<span class="status-dot dot-red"></span><span style="color:var(--error)">Not set</span>';
+  document.getElementById('dataStatus').innerHTML = keys.length
+    ? '<span class="status-dot dot-green"></span><span style="color:var(--success)">' + keys.length + ' groups loaded</span>'
+    : '<span class="status-dot dot-red"></span><span style="color:var(--error)">Not loaded</span>';
+  document.getElementById('passStatus').innerHTML = localStorage.getItem(PASS_KEY)
+    ? '<span class="status-dot dot-green"></span><span style="color:var(--success)">Custom password set</span>'
+    : '<span style="color:var(--warn)">⚠ Using default — please change!</span>';
+}
+
+function cap(str) {
+  if (!str) return str;
+  return str.replace(/\w\S*/g, t => t.charAt(0).toUpperCase() + t.slice(1).toLowerCase());
+}
+
+function renderGroupTable() {
+  const keys = Object.keys(STUDENT_DATA);
+  document.getElementById('groupCount').textContent = keys.length + ' groups';
+  document.getElementById('groupTableBody').innerHTML = keys.map(k => {
+    const d = STUDENT_DATA[k];
+    return `<tr>
+      <td><strong>${k}</strong></td>
+      <td>${cap(d.s1_name)}</td>
+      <td class="id-col">${d.s1_id}</td>
+      <td>${d.s2_name ? cap(d.s2_name) : '<span style="color:var(--muted)">—</span>'}</td>
+      <td class="id-col">${d.s2_id || '—'}</td>
+      <td><span class="tag tag-day">Day ${d.day}</span></td>
+      <td><span class="tag tag-room">Rm ${d.room}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+async function pushConfigToGitHub(sheetUrl, alertEl) {
+  const repo = localStorage.getItem(GH_REPO_KEY);
+  const token = localStorage.getItem(GH_TOKEN_KEY);
+  if (!repo || !token) { if (alertEl) { alertEl.className = 'alert alert-warn show'; alertEl.textContent = '✓ Saved locally. Add GitHub repo & token to sync across devices.'; } return; }
+  try {
+    const apiUrl = 'https://api.github.com/repos/' + repo + '/contents/config.json';
+    let sha = '';
+    const get = await fetch(apiUrl, { headers: { Authorization: 'token ' + token, Accept: 'application/vnd.github.v3+json' } });
+    if (get.ok) { const d = await get.json(); sha = d.sha; }
+    const encoded = btoa(JSON.stringify({ sheetUrl }));
+    const put = await fetch(apiUrl, { method: 'PUT', headers: { Authorization: 'token ' + token, Accept: 'application/vnd.github.v3+json', 'Content-Type': 'application/json' }, body: JSON.stringify({ message: 'Update config', content: encoded, ...(sha ? { sha } : {}) }) });
+    if (put.ok) { if (alertEl) { alertEl.className = 'alert alert-success show'; alertEl.textContent = '✓ URL saved & synced to GitHub.'; } }
+    else { const err = await put.json(); if (alertEl) { alertEl.className = 'alert alert-warn show'; alertEl.textContent = '✓ Saved locally. GitHub sync failed: ' + (err.message || 'check token & repo'); } }
+  } catch(e) { if (alertEl) { alertEl.className = 'alert alert-warn show'; alertEl.textContent = '✓ Saved locally. GitHub error: ' + e.message; } }
+}
+
+function saveGitHubSettings() {
+  const repo = document.getElementById('ghRepoInput').value.trim();
+  const token = document.getElementById('ghTokenInput').value.trim();
+  if (repo) localStorage.setItem(GH_REPO_KEY, repo);
+  if (token) localStorage.setItem(GH_TOKEN_KEY, token);
+  const url = getSheetUrl();
+  const alertEl = document.getElementById('sheetAlert');
+  if (url) pushConfigToGitHub(url, alertEl);
+  else { alertEl.className = 'alert alert-success show'; alertEl.textContent = '✓ GitHub settings saved.'; }
+}
+
+async function saveSheetUrl() {
+  const url = document.getElementById('sheetUrlInput').value.trim();
+  const alertEl = document.getElementById('sheetAlert');
+  if (!url) { alertEl.className = 'alert alert-error show'; alertEl.textContent = 'Please enter a URL.'; return; }
+  if (!url.startsWith('https://script.google.com')) { alertEl.className = 'alert alert-warn show'; alertEl.textContent = "⚠ Doesn't look like a Google Apps Script URL."; return; }
+  localStorage.setItem(SHEET_KEY, url);
+  alertEl.className = 'alert alert-success show';
+  alertEl.textContent = '✓ Saved locally. Syncing to GitHub…';
+  updateDashboard();
+  await pushConfigToGitHub(url, alertEl);
+}
+
+function clearSheetUrl() {
+  if (!confirm('Remove the Google Sheet URL?')) return;
+  localStorage.removeItem(SHEET_KEY);
+  document.getElementById('sheetUrlInput').value = '';
+  document.getElementById('sheetAlert').className = 'alert alert-warn show';
+  document.getElementById('sheetAlert').textContent = 'Sheet URL cleared.';
+  updateDashboard();
+}
+
+function openSheet() {
+  const url = getSheetUrl();
+  if (url) window.open(url, '_blank');
+  else alert('No sheet URL configured yet.');
+}
+
+function changePassword() {
+  const current = document.getElementById('currentPass').value;
+  const newp = document.getElementById('newPass').value;
+  const confirm = document.getElementById('confirmPass').value;
+  const alertEl = document.getElementById('passAlert');
+  if (current !== getPassword()) { alertEl.className = 'alert alert-error show'; alertEl.textContent = 'Current password is incorrect.'; return; }
+  if (newp.length < 6) { alertEl.className = 'alert alert-error show'; alertEl.textContent = 'New password must be at least 6 characters.'; return; }
+  if (newp !== confirm) { alertEl.className = 'alert alert-error show'; alertEl.textContent = 'Passwords do not match.'; return; }
+  localStorage.setItem(PASS_KEY, newp);
+  alertEl.className = 'alert alert-success show';
+  alertEl.textContent = '✓ Password updated successfully.';
+  document.getElementById('currentPass').value = '';
+  document.getElementById('newPass').value = '';
+  document.getElementById('confirmPass').value = '';
+  updateDashboard();
+}
+
+function clearAllSettings() {
+  if (!confirm('Clear ALL settings? You will be logged out.')) return;
+  localStorage.removeItem(PASS_KEY);
+  localStorage.removeItem(SHEET_KEY);
+  logout();
+}
+
+function copyScript() {
+  navigator.clipboard.writeText(document.getElementById('scriptCode').textContent)
+    .then(() => alert('Apps Script code copied!'));
+}
+</script>
+</body>
+</html>

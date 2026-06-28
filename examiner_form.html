@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Examination Grade Submission</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0d0f14;--surface:#13161d;--surface2:#1a1e28;--border:#262c3a;--accent:#c9a84c;--accent2:#e8c97a;--text:#e8eaf0;--muted:#6b7280;--success:#34d399;--error:#f87171}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;background-image:radial-gradient(ellipse at 20% 0%,rgba(201,168,76,0.06) 0%,transparent 60%),radial-gradient(ellipse at 80% 100%,rgba(201,168,76,0.04) 0%,transparent 50%)}
+header{border-bottom:1px solid var(--border);padding:20px 40px;display:flex;align-items:center;justify-content:space-between;background:rgba(13,15,20,0.9);backdrop-filter:blur(10px);position:sticky;top:0;z-index:100}
+.logo{font-family:'Playfair Display',serif;font-size:1.3rem;color:var(--accent)}.logo span{color:var(--text);font-weight:600}
+.badge{font-size:0.72rem;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);border:1px solid var(--border);padding:5px 12px;border-radius:20px}
+main{max-width:820px;margin:0 auto;padding:50px 24px 80px}
+.page-title{font-family:'Playfair Display',serif;font-size:2.2rem;margin-bottom:8px}.page-title em{color:var(--accent);font-style:normal}
+.page-sub{color:var(--muted);font-size:0.9rem;margin-bottom:44px;line-height:1.6}
+.steps{display:flex;margin-bottom:40px;border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.step{flex:1;padding:14px 20px;display:flex;align-items:center;gap:10px;font-size:0.82rem;font-weight:500;color:var(--muted);background:var(--surface);border-right:1px solid var(--border);transition:all 0.3s}
+.step:last-child{border-right:none}.step.active{background:var(--surface2);color:var(--accent)}.step.done{color:var(--success);background:rgba(52,211,153,0.04)}
+.step-num{width:22px;height:22px;border-radius:50%;border:1.5px solid currentColor;display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:700;flex-shrink:0}
+.step.done .step-num::after{content:'✓'}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:20px}
+.card-header{padding:18px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--surface2)}
+.card-title{font-size:0.78rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--accent)}
+.card-body{padding:24px}
+.group-input-wrap{display:flex;gap:12px;align-items:flex-end}
+.field-group{flex:1}
+label{display:block;font-size:0.78rem;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+input,select{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:0.95rem;padding:11px 15px;outline:none;transition:border-color 0.2s,box-shadow 0.2s}
+input:focus,select:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(201,168,76,0.12)}
+input[readonly]{opacity:0.6;cursor:not-allowed;background:rgba(255,255,255,0.02)}
+.btn{padding:11px 22px;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:0.88rem;font-weight:600;cursor:pointer;border:none;transition:all 0.2s;white-space:nowrap}
+.btn-primary{background:var(--accent);color:#0d0f14}.btn-primary:hover{background:var(--accent2);transform:translateY(-1px)}
+.btn-ghost{background:transparent;color:var(--muted);border:1px solid var(--border)}.btn-ghost:hover{border-color:var(--accent);color:var(--accent)}
+.btn-submit{width:100%;padding:15px;font-size:1rem;background:var(--accent);color:#0d0f14;border-radius:10px;font-weight:700;letter-spacing:0.04em}
+.btn-submit:hover{background:var(--accent2);transform:translateY(-2px);box-shadow:0 8px 24px rgba(201,168,76,0.25)}
+.btn-submit:disabled{opacity:0.4;cursor:not-allowed;transform:none;box-shadow:none}
+.student-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.student-card{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:16px 18px;position:relative;overflow:hidden}
+.student-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--accent),transparent)}
+.student-label{font-size:0.7rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--accent);margin-bottom:8px}
+.student-name{font-size:1rem;font-weight:600;margin-bottom:4px}
+.student-id{font-size:0.82rem;color:var(--muted);font-family:'Courier New',monospace;letter-spacing:0.05em}
+.info-row{display:flex;gap:12px;margin-top:12px}
+.info-chip{display:flex;align-items:center;gap:6px;font-size:0.78rem;color:var(--muted);background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:5px 10px}
+.info-chip strong{color:var(--text)}
+.student-block{margin-bottom:28px}
+.student-block-header{display:flex;align-items:center;justify-content:space-between;background:var(--surface2);border:1px solid var(--border);border-radius:10px 10px 0 0;padding:12px 18px;border-bottom:none}
+.student-block-name{font-size:0.95rem;font-weight:700}
+.student-block-id{font-size:0.78rem;color:var(--muted);font-family:'Courier New',monospace}
+.student-block-body{border:1px solid var(--border);border-radius:0 0 10px 10px;overflow:hidden}
+.examiner-row{display:grid;grid-template-columns:90px 1fr 1fr 140px;align-items:center;border-bottom:1px solid var(--border)}
+.examiner-row:last-child{border-bottom:none}
+.examiner-label{display:flex;align-items:center;gap:8px;padding:14px 16px;border-right:1px solid var(--border);background:rgba(255,255,255,0.01)}
+.examiner-badge{width:26px;height:26px;border-radius:6px;background:linear-gradient(135deg,var(--accent),#a07030);display:flex;align-items:center;justify-content:center;font-size:0.68rem;font-weight:800;color:#0d0f14;flex-shrink:0}
+.examiner-name{font-size:0.78rem;font-weight:600;color:var(--muted)}
+.grade-cell{padding:10px 12px;border-right:1px solid var(--border)}
+.grade-cell label{font-size:0.65rem;margin-bottom:5px;color:var(--muted);letter-spacing:0.06em}
+.grade-cell input{font-size:0.95rem;font-weight:700;text-align:center;padding:8px 6px}
+.subtotal-cell{padding:10px 14px;text-align:center}
+.subtotal-label{font-size:0.62rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:3px}
+.subtotal-val{font-size:1rem;font-weight:700;color:var(--accent2);font-family:'Courier New',monospace}
+.total-row{display:flex;align-items:center;justify-content:space-between;background:rgba(201,168,76,0.06);border-top:1px solid rgba(201,168,76,0.2);padding:12px 18px}
+.total-label{font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--accent)}
+.total-val{font-size:1.3rem;font-weight:800;color:var(--accent2);font-family:'Playfair Display',serif}
+.total-val span{font-size:0.75rem;color:var(--muted);font-family:'DM Sans',sans-serif;font-weight:400;margin-left:2px}
+.group-avg-row{display:flex;align-items:center;justify-content:space-between;background:rgba(201,168,76,0.1);border:1px solid rgba(201,168,76,0.25);border-radius:10px;padding:14px 18px;margin-bottom:20px}
+.group-avg-label{font-size:0.8rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--accent)}
+.group-avg-val{font-size:1.5rem;font-weight:800;color:var(--accent2);font-family:'Playfair Display',serif}
+.divider{border:none;border-top:1px solid var(--border);margin:20px 0}
+.alert{padding:12px 16px;border-radius:8px;font-size:0.85rem;margin-bottom:16px;display:none;align-items:center;gap:10px}
+.alert.show{display:flex}
+.alert-error{background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.3);color:var(--error)}
+.alert-success{background:rgba(52,211,153,0.1);border:1px solid rgba(52,211,153,0.3);color:var(--success)}
+.alert-info{background:rgba(201,168,76,0.08);border:1px solid rgba(201,168,76,0.25);color:var(--accent2)}
+#groupInfoSection,#gradesSection{display:none}
+#groupInfoSection.visible,#gradesSection.visible{display:block}
+.timestamp-row{display:flex;align-items:center;justify-content:space-between;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin-bottom:20px}
+.ts-label{font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);font-weight:600}
+.ts-value{font-size:0.88rem;color:var(--accent2);font-family:'Courier New',monospace}
+#successScreen{display:none;text-align:center;padding:60px 30px}
+#successScreen.show{display:block}
+.success-icon{width:72px;height:72px;border-radius:50%;background:rgba(52,211,153,0.15);border:2px solid var(--success);display:flex;align-items:center;justify-content:center;font-size:2rem;margin:0 auto 24px;animation:pop 0.4s cubic-bezier(0.34,1.56,0.64,1)}
+@keyframes pop{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
+.success-title{font-family:'Playfair Display',serif;font-size:1.8rem;margin-bottom:10px}
+.success-sub{color:var(--muted);font-size:0.9rem;margin-bottom:28px}
+.spinner{display:inline-block;width:16px;height:16px;border:2px solid rgba(0,0,0,0.2);border-top-color:#0d0f14;border-radius:50%;animation:spin 0.7s linear infinite;vertical-align:middle;margin-right:6px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-overlay{text-align:center;padding:40px;color:var(--muted);font-size:0.9rem}
+select option{background:#1a1e28}
+@media(max-width:600px){.student-grid{grid-template-columns:1fr}.group-input-wrap{flex-direction:column}main{padding:30px 16px 60px}.page-title{font-size:1.6rem}.examiner-row{grid-template-columns:70px 1fr 1fr 100px}}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">Exam<span>Portal</span></div>
+  <div style="display:flex;align-items:center;gap:12px">
+    <a href="admin_panel.html" style="font-size:0.72rem;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);text-decoration:none;border:1px solid var(--border);padding:5px 12px;border-radius:20px;transition:all 0.2s" onmouseover="this.style.color='var(--accent)';this.style.borderColor='var(--accent)'" onmouseout="this.style.color='var(--muted)';this.style.borderColor='var(--border)'">Admin</a>
+    <div class="badge">Examiner Access</div>
+  </div>
+</header>
+<main>
+  <h1 class="page-title">Grade <em>Submission</em></h1>
+  <p class="page-sub">Enter your group number to load student info, then fill in the grades for each examiner.</p>
+  <div class="steps">
+    <div class="step active" id="step1"><div class="step-num">1</div>Find Group</div>
+    <div class="step" id="step2"><div class="step-num">2</div>Enter Grades</div>
+    <div class="step" id="step3"><div class="step-num">3</div>Submit</div>
+  </div>
+  <div id="mainForm">
+    <div id="dataLoadStatus" class="alert alert-info show">⏳ Loading student data…</div>
+    <div class="card">
+      <div class="card-header"><span class="card-title">Group Lookup</span></div>
+      <div class="card-body">
+        <div id="lookupAlert" class="alert alert-error">Group not found. Please check the group number and try again.</div>
+        <div class="group-input-wrap">
+          <div class="field-group">
+            <label for="groupInput">Group Number</label>
+            <input type="text" id="groupInput" placeholder="e.g. 1g, 2g, G14…" autocomplete="off">
+          </div>
+          <button class="btn btn-primary" onclick="lookupGroup()">Look Up</button>
+        </div>
+      </div>
+    </div>
+    <div id="groupInfoSection">
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Group Information</span>
+          <button class="btn btn-ghost" style="padding:6px 14px;font-size:0.8rem" onclick="resetForm()">Change Group</button>
+        </div>
+        <div class="card-body">
+          <div class="student-grid">
+            <div class="student-card"><div class="student-label">Student 1</div><div class="student-name" id="s1Name">—</div><div class="student-id" id="s1Id">—</div></div>
+            <div class="student-card" id="s2Card"><div class="student-label">Student 2</div><div class="student-name" id="s2Name">—</div><div class="student-id" id="s2Id">—</div></div>
+          </div>
+          <div class="info-row">
+            <div class="info-chip">Day <strong id="infoDay">—</strong></div>
+            <div class="info-chip">Room <strong id="infoRoom">—</strong></div>
+            <div class="info-chip">Group <strong id="infoGroup">—</strong></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="gradesSection">
+      <div class="card">
+        <div class="card-header"><span class="card-title">Grades Entry</span></div>
+        <div class="card-body">
+          <div id="noSheetAlert" class="alert alert-info" style="margin-bottom:20px">⚠ No Google Sheet linked yet. Ask admin to set the submission link.</div>
+          <!-- STUDENT 1 -->
+          <div class="student-block" id="s1Block">
+            <div class="student-block-header">
+              <div><div class="student-block-name" id="gradeS1Name">Student 1</div><div class="student-block-id" id="gradeS1Id"></div></div>
+              <div style="font-size:0.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em">Student 1</div>
+            </div>
+            <div class="student-block-body">
+              <div class="examiner-row" style="background:var(--surface2)">
+                <div style="padding:8px 16px;font-size:0.65rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);border-right:1px solid var(--border)">Examiner</div>
+                <div style="padding:8px 12px;font-size:0.65rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);border-right:1px solid var(--border)">Report /5</div>
+                <div style="padding:8px 12px;font-size:0.65rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);border-right:1px solid var(--border)">Presentation /5</div>
+                <div style="padding:8px 14px;font-size:0.65rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted)">Subtotal /10</div>
+              </div>
+              <div class="examiner-row">
+                <div class="examiner-label"><div class="examiner-badge">E1</div><span class="examiner-name">Exam 1</span></div>
+                <div class="grade-cell"><label>Report</label><input type="number" id="e1s1r" min="0" max="5" step="0.5" placeholder="—" oninput="calcTotals()"></div>
+                <div class="grade-cell"><label>Presentation</label><input type="number" id="e1s1p" min="0" max="5" step="0.5" placeholder="—" oninput="calcTotals()"></div>
+                <div class="subtotal-cell"><div class="subtotal-label">E1 Total</div><div class="subtotal-val" id="sub_e1s1">—</div></div>
+              </div>
+              <div class="examiner-row">
+                <div class="examiner-label"><div class="examiner-badge">E2</div><span class="examiner-name">Exam 2</span></div>
+                <div class="grade-cell"><label>Report</label><input type="number" id="e2s1r" min="0" max="5" step="0.5" placeholder="—" oninput="calcTotals()"></div>
+                <div class="grade-cell"><label>Presentation</label><input type="number" id="e2s1p" min="0" max="5" step="0.5" placeholder="—" oninput="calcTotals()"></div>
+                <div class="subtotal-cell"><div class="subtotal-label">E2 Total</div><div class="subtotal-val" id="sub_e2s1">—</div></div>
+              </div>
+              <div class="examiner-row">
+                <div class="examiner-label"><div class="examiner-badge">E3</div><span class="examiner-name">Exam 3</span></div>
+                <div class="grade-cell"><label>Report</label><input type="number" id="e3s1r" min="0" max="5" step="0.5" placeholder="—" oninput="calcTotals()"></div>
+                <div class="grade-cell"><label>Presentation</label><input type="number" id="e3s1p" min="0" max="5" step="0.5" placeholder="—" oninput="calcTotals()"></div>
+                <div class="subtotal-cell"><div class="subtotal-label">E3 Total</div><div class="subtotal-val" id="sub_e3s1">—</div></div>
+              </div>
+              <div class="total-row"><span class="total-label">Student 1 — Total</span><span class="total-val" id="total_s1">—<span>/ 30</span></span></div>
+            </div>
+          </div>
+          <!-- STUDENT 2 -->
+          <div class="student-block" id="s2Block">
+            <div class="student-block-header">
+              <div><div class="student-block-name" id="gradeS2Name">Student 2</div><div class="student-block-id" id="gradeS2Id"></div></div>
+              <div style="font-size:0.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em">Student 2</div>
+            </div>
+            <div class="student-block-body">
+              <div class="examiner-row" style="background:var(--surface2)">
+                <div style="padding:8px 16px;font-size:0.65rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);border-right:1px solid var(--border)">Examiner</div>
+                <div style="padding:8px 12px;font-size:0.65rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);border-right:1px solid var(--border)">Report /5</div>
+                <div style="padding:8px 12px;font-size:0.65rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);border-right:1px solid var(--border)">Presentation /5</div>
+                <div style="padding:8px 14px;font-size:0.65rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted)">Subtotal /10</div>
+              </div>
+              <div class="examiner-row">
+                <div class="examiner-label"><div class="examiner-badge">E1</div><span class="examiner-name">Exam 1</span></div>
+                <div class="grade-cell s2-grade"><label>Report</label><input type="number" id="e1s2r" min="0" max="5" step="0.5" placeholder="—" oninput="calcTotals()"></div>
+                <div class="grade-cell s2-grade"><label>Presentation</label><input type="number" id="e1s2p" min="0" max="5" step="0.5" placeholder="—" oninput="calcTotals()"></div>
+                <div class="subtotal-cell"><div class="subtotal-label">E1 Total</div><div class="subtotal-val" id="sub_e1s2">—</div></div>
+              </div>
+              <div class="examiner-row">
+                <div class="examiner-label"><div class="examiner-badge">E2</div><span class="examiner-name">Exam 2</span></div>
+                <div class="grade-cell s2-grade"><label>Report</label><input type="number" id="e2s2r" min="0" max="5" step="0.5" placeholder="—" oninput="calcTotals()"></div>
+                <div class="grade-cell s2-grade"><label>Presentation</label><input type="number" id="e2s2p" min="0" max="5" step="0.5" placeholder="—" oninput="calcTotals()"></div>
+                <div class="subtotal-cell"><div class="subtotal-label">E2 Total</div><div class="subtotal-val" id="sub_e2s2">—</div></div>
+              </div>
+              <div class="examiner-row">
+                <div class="examiner-label"><div class="examiner-badge">E3</div><span class="examiner-name">Exam 3</span></div>
+                <div class="grade-cell s2-grade"><label>Report</label><input type="number" id="e3s2r" min="0" max="5" step="0.5" placeholder="—" oninput="calcTotals()"></div>
+                <div class="grade-cell s2-grade"><label>Presentation</label><input type="number" id="e3s2p" min="0" max="5" step="0.5" placeholder="—" oninput="calcTotals()"></div>
+                <div class="subtotal-cell"><div class="subtotal-label">E3 Total</div><div class="subtotal-val" id="sub_e3s2">—</div></div>
+              </div>
+              <div class="total-row"><span class="total-label">Student 2 — Total</span><span class="total-val" id="total_s2">—<span>/ 30</span></span></div>
+            </div>
+          </div>
+          <!-- GROUP AVERAGE -->
+          <div class="group-avg-row" id="groupAvgRow" style="display:none">
+            <span class="group-avg-label">Group Average</span>
+            <span class="group-avg-val" id="groupAvgVal">—<span style="font-size:0.75rem;color:var(--muted);font-family:'DM Sans',sans-serif;font-weight:400;margin-left:2px">/ 30</span></span>
+          </div>
+          <div class="timestamp-row">
+            <span class="ts-label">Submission Timestamp</span>
+            <span class="ts-value" id="tsDisplay">Will be set on submit</span>
+          </div>
+          <div id="submitAlert" class="alert" style="margin-bottom:16px"></div>
+          <button class="btn btn-submit" id="submitBtn" onclick="submitGrades()">Submit Grades to Google Sheets</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="successScreen">
+    <div class="success-icon">✓</div>
+    <h2 class="success-title">Grades Submitted</h2>
+    <p class="success-sub">The grades for this group have been saved to Google Sheets.</p>
+    <button class="btn btn-primary" onclick="resetAll()">Submit Another Group</button>
+  </div>
+</main>
+<script>
+// ── CHANGE THIS URL TO YOUR GOOGLE APPS SCRIPT ROSTER URL ──
+const HARDCODED_ROSTER_URL = 'PASTE_YOUR_ROSTER_SCRIPT_URL_HERE';
+// ── CHANGE THIS URL TO YOUR GRADE SUBMISSION SCRIPT URL ──
+const HARDCODED_SHEET_URL = 'https://script.google.com/macros/s/AKfycbw6xnAyHr1UXfUB6JJkqL2dlNnK8S-Uel9CgiZVB_ZonFkeiRjp9b0K9vF_Zrg8P2eCNg/exec';
+
+let STUDENT_DATA = {};
+let currentGroup = null;
+let hasS2 = false;
+
+// Load student data on page load
+async function loadStudentData() {
+  const statusEl = document.getElementById('dataLoadStatus');
+  try {
+    const res = await fetch(HARDCODED_ROSTER_URL);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    STUDENT_DATA = await res.json();
+    statusEl.className = 'alert alert-success show';
+    statusEl.textContent = '✓ Student data loaded — ' + Object.keys(STUDENT_DATA).length + ' groups.';
+    setTimeout(() => statusEl.classList.remove('show'), 3000);
+  } catch(e) {
+    statusEl.className = 'alert alert-error show';
+    statusEl.textContent = '⚠ Could not load student data: ' + e.message + '. Using fallback data.';
+    STUDENT_DATA = FALLBACK_DATA;
+  }
+}
+
+function getSheetUrl() {
+  return localStorage.getItem('examportal_sheet_url') || HARDCODED_SHEET_URL;
+}
+
+function lookupGroup() {
+  const raw = document.getElementById('groupInput').value.trim();
+  const alertEl = document.getElementById('lookupAlert');
+  alertEl.classList.remove('show');
+  if (!raw) return;
+  let key = null;
+  if (STUDENT_DATA[raw]) {
+    key = raw;
+  } else {
+    const lraw = raw.toLowerCase().replace(/\s+/g,' ');
+    for (const k of Object.keys(STUDENT_DATA)) {
+      if (k.toLowerCase().replace(/\s+/g,' ') === lraw) { key = k; break; }
+    }
+  }
+  if (!key) { alertEl.classList.add('show'); return; }
+  currentGroup = { key, ...STUDENT_DATA[key] };
+  hasS2 = !!(currentGroup.s2_name && currentGroup.s2_name.trim());
+  document.getElementById('s1Name').textContent = titleCase(currentGroup.s1_name) || '—';
+  document.getElementById('s1Id').textContent = 'ID: ' + (currentGroup.s1_id || '—');
+  document.getElementById('s2Name').textContent = hasS2 ? titleCase(currentGroup.s2_name) : 'No second student';
+  document.getElementById('s2Id').textContent = hasS2 ? 'ID: ' + currentGroup.s2_id : '';
+  document.getElementById('s2Card').style.opacity = hasS2 ? '1' : '0.4';
+  document.getElementById('infoDay').textContent = 'Day ' + currentGroup.day;
+  document.getElementById('infoRoom').textContent = currentGroup.room;
+  document.getElementById('infoGroup').textContent = key;
+  document.getElementById('gradeS1Name').textContent = titleCase(currentGroup.s1_name) || 'Student 1';
+  document.getElementById('gradeS1Id').textContent = 'ID: ' + (currentGroup.s1_id || '—');
+  document.getElementById('gradeS2Name').textContent = hasS2 ? titleCase(currentGroup.s2_name) : 'No second student';
+  document.getElementById('gradeS2Id').textContent = hasS2 ? 'ID: ' + currentGroup.s2_id : '';
+  document.getElementById('s2Block').style.opacity = hasS2 ? '1' : '0.4';
+  document.querySelectorAll('.s2-grade input').forEach(i => { i.disabled = !hasS2; i.style.opacity = hasS2 ? '1' : '0.3'; });
+  const noSheetAlert = document.getElementById('noSheetAlert');
+  noSheetAlert.style.display = getSheetUrl() ? 'none' : 'flex';
+  document.getElementById('groupInfoSection').classList.add('visible');
+  document.getElementById('gradesSection').classList.add('visible');
+  document.getElementById('step1').classList.remove('active');
+  document.getElementById('step1').classList.add('done');
+  document.getElementById('step2').classList.add('active');
+  document.getElementById('groupInfoSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function titleCase(str) {
+  if (!str) return str;
+  return str.replace(/\w\S*/g, t => t.charAt(0).toUpperCase() + t.slice(1).toLowerCase());
+}
+
+function resetForm() {
+  currentGroup = null;
+  document.getElementById('groupInput').value = '';
+  document.getElementById('groupInfoSection').classList.remove('visible');
+  document.getElementById('gradesSection').classList.remove('visible');
+  document.getElementById('step1').classList.add('active');
+  document.getElementById('step1').classList.remove('done');
+  document.getElementById('step2').classList.remove('active','done');
+  document.getElementById('step3').classList.remove('active','done');
+  document.getElementById('lookupAlert').classList.remove('show');
+  clearGrades();
+}
+
+function resetAll() {
+  resetForm();
+  document.getElementById('mainForm').style.display = 'block';
+  document.getElementById('successScreen').classList.remove('show');
+}
+
+function clearGrades() {
+  ['e1s1r','e1s1p','e1s2r','e1s2p','e2s1r','e2s1p','e2s2r','e2s2p','e3s1r','e3s1p','e3s2r','e3s2p'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  ['sub_e1s1','sub_e2s1','sub_e3s1','sub_e1s2','sub_e2s2','sub_e3s2'].forEach(id => {
+    document.getElementById(id).textContent = '—';
+  });
+  document.getElementById('total_s1').innerHTML = '—<span>/ 30</span>';
+  document.getElementById('total_s2').innerHTML = '—<span>/ 30</span>';
+  document.getElementById('groupAvgRow').style.display = 'none';
+  document.getElementById('tsDisplay').textContent = 'Will be set on submit';
+}
+
+function calcTotals() {
+  function v(id) { const val = document.getElementById(id).value; return val === '' ? null : parseFloat(val); }
+  function sub(r, p, subId) {
+    const rv = v(r), pv = v(p);
+    const el = document.getElementById(subId);
+    if (rv !== null && pv !== null) { el.textContent = (rv + pv).toFixed(1); return rv + pv; }
+    el.textContent = '—'; return null;
+  }
+  const e1s1 = sub('e1s1r','e1s1p','sub_e1s1');
+  const e2s1 = sub('e2s1r','e2s1p','sub_e2s1');
+  const e3s1 = sub('e3s1r','e3s1p','sub_e3s1');
+  const e1s2 = sub('e1s2r','e1s2p','sub_e1s2');
+  const e2s2 = sub('e2s2r','e2s2p','sub_e2s2');
+  const e3s2 = sub('e3s2r','e3s2p','sub_e3s2');
+
+  // S1 running total
+  const s1vals = [e1s1,e2s1,e3s1].filter(v => v !== null);
+  const ts1El = document.getElementById('total_s1');
+  let s1Total = null;
+  if (s1vals.length > 0) {
+    s1Total = s1vals.reduce((a,b) => a+b, 0);
+    ts1El.innerHTML = s1Total.toFixed(1) + '<span>/ ' + (s1vals.length * 10) + '</span>';
+  } else { ts1El.innerHTML = '—<span>/ 30</span>'; }
+
+  // S2 running total
+  const s2vals = [e1s2,e2s2,e3s2].filter(v => v !== null);
+  const ts2El = document.getElementById('total_s2');
+  let s2Total = null;
+  if (hasS2 && s2vals.length > 0) {
+    s2Total = s2vals.reduce((a,b) => a+b, 0);
+    ts2El.innerHTML = s2Total.toFixed(1) + '<span>/ ' + (s2vals.length * 10) + '</span>';
+  } else if (!hasS2) { ts2El.innerHTML = '—<span>/ 30</span>'; }
+  else { ts2El.innerHTML = '—<span>/ 30</span>'; }
+
+  // Group average — show when all entered examiners for both students are complete
+  const avgRow = document.getElementById('groupAvgRow');
+  const avgVal = document.getElementById('groupAvgVal');
+  const s1done = s1vals.length === 3;
+  const s2done = !hasS2 || s2vals.length === 3;
+  if (s1done && s2done && s1Total !== null) {
+    const avg = hasS2 && s2Total !== null ? (s1Total + s2Total) / 2 : s1Total;
+    avgVal.innerHTML = avg.toFixed(1) + '<span style="font-size:0.75rem;color:var(--muted);font-family:\'DM Sans\',sans-serif;font-weight:400;margin-left:2px">/ 30</span>';
+    avgRow.style.display = 'flex';
+  } else { avgRow.style.display = 'none'; }
+}
+
+async function submitGrades() {
+  function g(id) { const v = document.getElementById(id).value; return v === '' ? '' : parseFloat(v); }
+  const sheetUrl = getSheetUrl();
+  const alertEl = document.getElementById('submitAlert');
+  if (!sheetUrl) { alertEl.className = 'alert alert-error show'; alertEl.textContent = '⚠ No Google Sheet URL configured.'; return; }
+  if (!currentGroup) return;
+
+  // Validate all fields filled
+  const s1ids = ['e1s1r','e1s1p','e2s1r','e2s1p','e3s1r','e3s1p'];
+  const s2ids = ['e1s2r','e1s2p','e2s2r','e2s2p','e3s2r','e3s2p'];
+  const missing = s1ids.filter(id => document.getElementById(id).value === '');
+  if (hasS2) missing.push(...s2ids.filter(id => document.getElementById(id).value === ''));
+  if (missing.length) { alertEl.className = 'alert alert-error show'; alertEl.textContent = '⚠ Please fill in all grade fields before submitting.'; return; }
+
+  const timestamp = new Date().toLocaleString('en-GB', {day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  document.getElementById('tsDisplay').textContent = timestamp;
+
+  const s1Total = document.getElementById('total_s1').textContent.split('/')[0].trim();
+  const s2Total = hasS2 ? document.getElementById('total_s2').textContent.split('/')[0].trim() : '';
+  const groupAvg = document.getElementById('groupAvgVal').textContent.split('/')[0].trim();
+
+  const payload = {
+    timestamp, groupNumber: currentGroup.key, day: currentGroup.day, room: currentGroup.room,
+    s1Name: currentGroup.s1_name, s1Id: currentGroup.s1_id,
+    e1s1Report: g('e1s1r'), e1s1Presentation: g('e1s1p'),
+    e2s1Report: g('e2s1r'), e2s1Presentation: g('e2s1p'),
+    e3s1Report: g('e3s1r'), e3s1Presentation: g('e3s1p'),
+    s2Name: currentGroup.s2_name, s2Id: currentGroup.s2_id,
+    e1s2Report: g('e1s2r'), e1s2Presentation: g('e1s2p'),
+    e2s2Report: g('e2s2r'), e2s2Presentation: g('e2s2p'),
+    e3s2Report: g('e3s2r'), e3s2Presentation: g('e3s2p'),
+    s1Total, s2Total, groupAvg
+  };
+
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>Submitting…';
+  alertEl.className = 'alert';
+
+  try {
+    const formData = new URLSearchParams();
+    Object.entries(payload).forEach(([k,v]) => formData.append(k, v));
+    await fetch(sheetUrl, { method:'POST', mode:'no-cors', headers:{'Content-Type':'application/x-www-form-urlencoded'}, body: formData.toString() });
+    document.getElementById('step2').classList.remove('active');
+    document.getElementById('step2').classList.add('done');
+    document.getElementById('step3').classList.add('done');
+    document.getElementById('mainForm').style.display = 'none';
+    document.getElementById('successScreen').classList.add('show');
+  } catch(err) {
+    alertEl.className = 'alert alert-error show';
+    alertEl.textContent = 'Submission failed: ' + err.message;
+    btn.disabled = false;
+    btn.innerHTML = 'Submit Grades to Google Sheets';
+  }
+}
+
+document.getElementById('groupInput').addEventListener('keydown', e => { if (e.key === 'Enter') lookupGroup(); });
+
+// Fallback data if fetch fails
+const FALLBACK_DATA = {};
+
+loadStudentData();
+</script>
+</body>
+</html>
