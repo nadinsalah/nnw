@@ -254,7 +254,7 @@ async function loadStudentData() {
    async function loadStudentData() {
   const statusEl = document.getElementById('dataLoadStatus');
   try {
-    STUDENT_DATA = await new Promise((resolve, reject) => {
+   STUDENT_DATA = await new Promise((resolve, reject) => {
   const script = document.createElement('script');
   const cbName = 'rosterCB_' + Date.now();
   const timer = setTimeout(() => reject(new Error('Timeout — check roster script URL and redeploy')), 8000);
