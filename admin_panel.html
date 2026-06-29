@@ -318,7 +318,7 @@ async function loadStudentData() {
   statusEl.textContent = '⏳ Loading student data from roster script…';
   document.getElementById('groupTableBody').innerHTML = '<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--muted)"><span class="spinner-inline"></span>Loading…</td></tr>';
   try {
-    STUDENT_DATA = await new Promise((resolve, reject) => {
+   STUDENT_DATA = await new Promise((resolve, reject) => {
   const script = document.createElement('script');
   const cbName = 'rosterCB_' + Date.now();
   const timer = setTimeout(() => reject(new Error('Timeout — check roster script URL and redeploy')), 8000);
